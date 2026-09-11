@@ -605,11 +605,13 @@
       <h2 class="screenTitle small">Choose your Champion</h2>
       <div class="cards" id="charCards"></div>
       <button class="sbtn ghost" id="cBack">Back</button>
+      <button class="sbtn ghost" id="cUnlock">Unlock All</button>
     </div>
     <div id="realmSelect" class="screen">
       <h2 class="screenTitle small">Choose your Realm</h2>
       <div class="cards" id="realmCards"></div>
       <button class="sbtn ghost" id="rBack">Back</button>
+      <button class="sbtn ghost" id="rUnlock">Unlock All</button>
     </div>
     <div id="pauseMenu" class="screen">
       <h2 class="screenTitle small">Paused</h2>
@@ -3665,7 +3667,9 @@ function buildCharCards(){const c=$('#charCards');c.innerHTML='';for(const ch of
 $('#mPlay').onclick=showSelect;
 $('#mWallpaper').onclick=function(){showWallpaperModal();};
 $('#cBack').onclick=showMenu;
+$('#cUnlock').onclick=function(){for(const ch of CHARS)G.unlocks[ch.id]=true;buildCharCards();toast("UNLOCKED","all champions available");};
 $('#rBack').onclick=showSelect;
+$('#rUnlock').onclick=function(){if(G.mapUnlocks)for(const m of MAPS)G.mapUnlocks[m.id]=true;buildRealmCards();toast("UNLOCKED","all realms available");};
 $('#pResume').onclick=function(){togglePause();};
 $('#pShot').onclick=function(){enterScreenshotMode();};
 $('#pMusic').onclick=function(){AUDIO.start();G.musicMuted=!G.musicMuted;if(!G.musicMuted)G.muted=false;applyAudioSettings();};
