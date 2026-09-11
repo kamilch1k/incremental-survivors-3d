@@ -3303,6 +3303,15 @@ function render(){
   // ---- realm void backdrop (fills everything outside the world diamond) ----
   var VOID=((curMap||{}).void)||"#060505";
   ctx.fillStyle=VOID;ctx.fillRect(0,0,W,Hh);
+  // distant void dust: out-of-world reads as atmosphere, not emptiness
+  ctx.fillStyle="#ffe9c0";
+  for(var sd=0;sd<120;sd++){
+    var sx2=hsh(sd*3+1,7)*W,sy2=hsh(sd*5+2,11)*Hh;
+    ctx.globalAlpha=0.04+0.09*Math.abs(Math.sin(t*0.7+sd));
+    var sz2=sd%5===0?3:2;
+    ctx.fillRect(Math.round(sx2),Math.round(sy2),sz2,sz2);
+  }
+  ctx.globalAlpha=1;
   // ---- the whole realm floor in ONE diamond draw (every pixel covered) ----
   ctx.setTransform(dpr*ISO_A,dpr*ISO_B,dpr*(-ISO_A),dpr*ISO_B,dpr*ISO_OX,dpr*ISO_OY);
   ctx.drawImage(floorCv,0,0,WORLD.w,WORLD.h);
