@@ -33,7 +33,8 @@ python3 -m http.server 8123
 ```
 
 Same game as the original: hero fights automatically, you steer Forge/Ascend;
-wheel zooms the camera (closer/lower when zoomed in), P/Esc pauses.
+WASD/arrows nudge the hero relative to the isometric view (W = screen-up);
+wheel zooms, P/Esc pauses.
 
 ## Files
 

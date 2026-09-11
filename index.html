@@ -2157,7 +2157,12 @@ function manualVector(){
   if(moveKeys.w||moveKeys.arrowup)y--;
   if(moveKeys.s||moveKeys.arrowdown)y++;
   const l=Math.hypot(x,y);
-  return l?{x:x/l,y:y/l}:null;
+  if(!l)return null;
+  // isometric camera: screen axes map to world diagonals -
+  // screen-right (D) is world (+x,-y), screen-up (W) is world (-x,-y)
+  var A=(typeof ISO_A!=="undefined"&&ISO_A)||1,B=(typeof ISO_B!=="undefined"&&ISO_B)||0.5;
+  var wx=(x/A+y/B)/2,wy=(y/B-x/A)/2,wl=Math.hypot(wx,wy)||1;
+  return {x:wx/wl,y:wy/wl};
 }
 function steerAroundObstacles(dx,dy,manual){
   if(!hero||!obstacles.length)return {x:dx,y:dy};
