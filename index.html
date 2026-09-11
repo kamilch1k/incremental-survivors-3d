@@ -3300,6 +3300,9 @@ function render(){
   if(!hero||!run||!floorCv){drawMotes();return;}
   SHX=(Math.random()*2-1)*shake;SHY=(Math.random()*2-1)*shake;
   isoSetup();
+  // ---- realm void backdrop (fills everything outside the world diamond) ----
+  var VOID=((curMap||{}).void)||"#060505";
+  ctx.fillStyle=VOID;ctx.fillRect(0,0,W,Hh);
   // ---- the whole realm floor in ONE diamond draw (every pixel covered) ----
   ctx.setTransform(dpr*ISO_A,dpr*ISO_B,dpr*(-ISO_A),dpr*ISO_B,dpr*ISO_OX,dpr*ISO_OY);
   ctx.drawImage(floorCv,0,0,WORLD.w,WORLD.h);
@@ -3341,6 +3344,10 @@ function render(){
     else if(it.k===8)isoDecal(it.o,it.n);
     else if(it.k===9)isoAir(it.o,it.tag);
   }
+  // vignette: finishes the frame, blends world edges into the void
+  var vg2=ctx.createRadialGradient(W/2,Hh*0.46,Hh*0.32,W/2,Hh*0.46,Hh*0.95);
+  vg2.addColorStop(0,"rgba(0,0,0,0)");vg2.addColorStop(1,"rgba(0,0,0,.5)");
+  ctx.fillStyle=vg2;ctx.fillRect(0,0,W,Hh);
   // flashes over everything
   var L,al2;
   for(i=0;i<lightning.length;i++){L=lightning[i];al2=clamp(L.life/0.16,0,1);
