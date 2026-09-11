@@ -1627,7 +1627,24 @@ function orbCount(){return 2+M().orb;}
 function orbRadius(){return 66+M().spin*7;}
 function orbSpeed(){return 1.5+M().spin*0.16;}
 function magnetRange(){return 72+M().magnet*22;}
-function moveSpeed(){return 118*(1+M().swift*0.10)*cm("move");} // iso build: a little faster on purpose
+function moveSpeed(){
+  var base=118*(1+M().swift*0.10)*cm("move"); // iso build: a little faster on purpose
+  // iso build: screen-uniform manual speed. 2:1 dimetric stretches screen-x 2x
+  // vs screen-y, so world-uniform speed feels slow vertically/diagonally.
+  // Scale world speed by direction so on-screen speed matches pure D/A.
+  var kx=0,ky=0;
+  if(moveKeys.a||moveKeys.arrowleft)kx--;
+  if(moveKeys.d||moveKeys.arrowright)kx++;
+  if(moveKeys.w||moveKeys.arrowup)ky--;
+  if(moveKeys.s||moveKeys.arrowdown)ky++;
+  if(kx||ky){
+    var A=ISO_A||1,B=ISO_B||0.5;
+    var ux=(kx/A+ky/B)/2,uy=(ky/B-kx/A)/2,ul=Math.hypot(ux,uy)||1;ux/=ul;uy/=ul;
+    var sl=Math.hypot(A*(ux-uy),B*(ux+uy))||1;
+    return base*(1.4142/sl);
+  }
+  return base;
+}
 function startLevel(){return Math.min(MAX_RUN_LEVEL,1+S().head*2);}
 function offlineCapH(){return 4+S().smag*2;}
 function soulBonus(){return 1+S().smag*0.15;}
