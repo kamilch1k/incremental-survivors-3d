@@ -1,64 +1,64 @@
-# Incremental Survivors 3D (billboard / 2.5D rebuild)
+# Incremental Survivors 2.5D
 
-Copied from [`kamilch1k/incremental-survivors`](https://github.com/kamilch1k/incremental-survivors)
-(`2d-original.html` in this folder is the untouched 2D original) and rebuilt as **straight-up 3D**
-with the exact look you asked for:
+### ▶ Play it now: **https://kamilch1k.github.io/incremental-survivors-3d/**
 
-- **Pixel-art map as a plane** — each realm bakes a chunky pixel tile canvas
-  (dungeon stone / greenwood grass / heaven marble / inferno ash) and stretches it over
-  ONE `THREE.PlaneGeometry` ground slab with rim + under-box so it reads as a floating
-  diorama. No 3D terrain sculpting — just the flat pixel map.
-- **All characters as flat vertical sheets** — hero, every enemy, boss, prop
-  (tree / pillar / torch / crystal / chest / beacon) is a `PlaneGeometry` standing
-  upright on the plane, Y-billboarded every frame (`rotation.y` yaws to the camera,
-  never tips over). Blob shadows ground them.
-- True 3D where it helps game feel: perspective follow camera, fog + hemisphere/
-  directional lighting per realm, 3D XP/gold gems (octahedrons), expanding nova rings
-  and boss telegraph rings lying on the plane, HTML damage numbers projected from 3D.
+This is the **complete original game** — same file, same maps, same tiles, same
+sprites, same background vistas, same champions, realms, abilities, bosses, Forge,
+Ascend, audio and UI as
+[`kamilch1k/incremental-survivors`](https://github.com/kamilch1k/incremental-survivors)
+— with **only the renderer converted to 2.5D oblique**. No gameplay, balance,
+asset or logic file was touched; every change is inside the paint path.
+
+## What "2.5D" means here
+
+- **Ground plane squashed** (`TILT = 0.84`): floors, room tiles, carpets, rings,
+  auras, boss telegraphs and glows all render on a tilted plane, so circles read
+  as floor ellipses.
+- **Characters stand upright**: hero, enemies, bosses, allies, beacons and props
+  are foot-planted vertical standees whose height is divided back out of the tilt,
+  keeping exact original pixel proportions with feet on their shadows.
+- **Extruded walls**: every wall segment grows a shaded vertical face + top lip.
+- **Painter-sorted depth**: props, beacons, creatures and hero draw back-to-front
+  by ground-Y, so you walk *behind* trees and *in front of* walls correctly.
+- **Sky stays level**: backdrops, vistas and clouds render tilt-free, exactly as
+  in 2D; camera, culling, minimap and target arrow account for the taller view.
+
+All world coordinates, collision, AI, waves, drops, saves (`localStorage`) and
+`?wallpaper=1` background mode behave byte-identically to the 2D original.
 
 ## Play
 
-Open **`index.html`** in a modern browser (internet needed once for the Three.js CDN
-+ Google Fonts), or serve the folder:
+Open **`index.html`** (no build step, works offline except Google Fonts), or:
 
 ```powershell
-cd incremental-survivors-3d
 python3 -m http.server 8123
 # → http://localhost:8123/index.html
 ```
 
-- Pick a **champion** (8, same roster/mods as 2D) and a **realm plane** (4, same
-  unlock requirements), hit **▶ Start Run**.
-- The hero auto-moves and auto-fights; WASD is an optional nudge. Wheel zooms the
-  3D camera, P/Esc pauses.
-- Same loop as the original: waves scale with time, boss every 5 waves with
-  telegraphed slam + summons, XP gems → level-up choices (orbs / bolts / nova /
-  chain / aura / wraiths / axes…), beacons/chests (cache / surge / arsenal / heal),
-  victory at level 50, gold Forge + soul Ascend persisted in `localStorage`
-  (`is3d_save_v1`, separate from the 2D save).
-- `index.html?wallpaper=1` starts a hands-free Dungeon run with the side panel
-  hidden (use in Lively Wallpaper or similar).
+Same controls and meta game as the original: hero fights automatically, you steer
+the Forge/Ascend; wheel zooms, P/Esc pauses.
 
 ## Files
 
 | file | what |
 |---|---|
-| `index.html` | the whole 3D game (Three.js via CDN, no build step) |
-| `2d-original.html` | untouched copy of the 2D original for reference |
-| `revenant_assets.zip`, `sprite_preview.png` | carried over from the original repo copy |
-| `Start/Stop-DesktopBackground.ps1` | original 2D wallpaper scripts (kept; use `?wallpaper=1` on `index.html` for the 3D one) |
+| `index.html` | the full game, 2.5D renderer (this is what Pages hosts) |
+| `2d-original.html` | untouched 2D original, for diffing |
+| `threejs-3d.html` | earlier experimental Three.js rebuild, kept for reference |
+| `revenant_assets.zip`, `sprite_preview.png` | carried over from the original repo |
+| `Start/Stop-DesktopBackground.ps1` | original wallpaper scripts (work with `index.html`) |
 
-## Tech notes
+## Patch anatomy (all in `index.html`, search `2.5D`)
 
-- `three@0.160.0` via importmap (`unpkg`), `NearestFilter` canvas textures for
-  crisp pixels, shared unit-plane geometry with feet origin.
-- Prop pixel art (`tree`, `pillar`, `torch`, `crystal`, `bones`, …) reuses the
-  2D original's `PAL` + `bakeArt` rows; hero/enemy sheets are small procedural
-  pixel painters with 2-frame walk animation.
-- Enemy cap (~90, 150 in nightmare), pooled HTML damage numbers, cached
-  projectile textures — fine on integrated graphics.
+`TILT`/`TILT_INV`/`viewHT()` + tilted camera transform in `render()` (backdrop
+split into an untilted pass via `drawBackdrop()`), `drawSpriteV()` /
+`drawSpriteTintedV()` foot-planted painters, wall faces in `drawWallSeg()`,
+flat/stand split in `drawProp()`, standee extractors (`drawBeaconFull`,
+`drawFlybyFull`, `drawEnemyFull`, `drawAllyFull`, `drawHeroFull`) dispatched
+Y-sorted, enemy HP bar re-anchored above heads. Verified headless: 44 s run →
+wave 4, 129 kills, level 8, zero console errors.
 
 ## Credits
 
-- Base game + pixel art concept: 2D original (CC0 tiles by 0x72, OFL fonts,
-  procedural Web Audio). 3D rebuild: same systems, new renderer.
+- Game, pixel art (*DungeonTileset II* by **0x72**, CC0), fonts (OFL), procedural
+  Web Audio: the 2D original and its authors. 2.5D conversion: render-path only.
