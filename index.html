@@ -1627,7 +1627,7 @@ function orbCount(){return 2+M().orb;}
 function orbRadius(){return 66+M().spin*7;}
 function orbSpeed(){return 1.5+M().spin*0.16;}
 function magnetRange(){return 72+M().magnet*22;}
-function moveSpeed(){return 100*(1+M().swift*0.10)*cm("move");}
+function moveSpeed(){return 118*(1+M().swift*0.10)*cm("move");} // iso build: a little faster on purpose
 function startLevel(){return Math.min(MAX_RUN_LEVEL,1+S().head*2);}
 function offlineCapH(){return 4+S().smag*2;}
 function soulBonus(){return 1+S().smag*0.15;}
@@ -2284,8 +2284,8 @@ function update(dt){
   }else if(hero.dashT>0){
     hero.dashT-=dt;hero.vx=hero.dashVx;hero.vy=hero.dashVy;if(!moveEntity(hero,hero.dashVx*dt,hero.dashVy*dt,14,true))hero.dashT=0;dashStrike();if(hero.dashT<=0){hero.vx*=0.35;hero.vy*=0.35;hero.dashHit.clear();}
   }else{
-    hero.vx+=((dx/dl)*sp-hero.vx)*Math.min(dt*6,1);
-    hero.vy+=((dy/dl)*sp-hero.vy)*Math.min(dt*6,1);
+    hero.vx+=((dx/dl)*sp-hero.vx)*Math.min(dt*10,1); // iso build: snappier response
+    hero.vy+=((dy/dl)*sp-hero.vy)*Math.min(dt*10,1);
     moveEntity(hero,hero.vx*dt,hero.vy*dt,14,true);
   }
   pushOut(hero,12);clampToRegion(hero,14);updateHeroMotionState(dt,dx/dl,dy/dl);
@@ -3092,11 +3092,17 @@ function air3(o,tag){
    depth (x+y). Every pixel is world - no sky, no void, no gaps.
    ============================================================ */
 var ISO_A=1,ISO_B=0.5,ISO_OX=0,ISO_OY=0,ISO_Z=1;
+var SMX=null,SMY=null,SMLAST=0; // smoothed camera anchor (world)
 function isoSetup(){
   var z=cameraZoom||1;
+  var now=performance.now(),dt=Math.min(0.1,(now-(SMLAST||now))/1000);SMLAST=now;
+  if(SMX===null||SMY===null||Math.hypot(hero.x-SMX,hero.y-SMY)>1500){SMX=hero.x;SMY=hero.y;}
+  var k=1-Math.exp(-dt*6); // frame-rate independent smoothing
+  SMX+=(hero.x-SMX)*k;SMY+=(hero.y-SMY)*k;
   ISO_A=z;ISO_B=z*0.5;ISO_Z=z;
-  ISO_OX=W/2-(hero.x-hero.y)*ISO_A+SHX;
-  ISO_OY=Hh*0.46-(hero.x+hero.y)*ISO_B+SHY;
+  // character body-center on screen: ground point sits half a hero-height below center
+  ISO_OX=W/2-(SMX-SMY)*ISO_A+SHX;
+  ISO_OY=Hh*0.48-(SMX+SMY)*ISO_B+22*CHAR_H*ISO_Z+SHY;
 }
 function iproj(x,y,z){
   return {sx:(x-y)*ISO_A+ISO_OX,sy:(x+y)*ISO_B+ISO_OY-(z||0)*ISO_Z};

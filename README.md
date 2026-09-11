@@ -34,7 +34,8 @@ python3 -m http.server 8123
 
 Same game as the original: hero fights automatically, you steer Forge/Ascend;
 WASD/arrows nudge the hero relative to the isometric view (W = screen-up);
-wheel zooms, P/Esc pauses.
+wheel zooms, P/Esc pauses. The camera smoothly follows the hero's body-center;
+hero base speed is +18% with snappier acceleration versus the 2D original.
 
 ## Files
 
