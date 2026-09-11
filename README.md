@@ -1,30 +1,26 @@
-# Incremental Survivors 3D — top-down perspective
+# Incremental Survivors — isometric
 
 ### ▶ Play it now: **https://kamilch1k.github.io/incremental-survivors-3d/**
 
-The **complete original game** — same maps, tiles, sprites, background vistas,
-champions, realms, abilities, bosses, Forge, Ascend, audio and UI as
+The **complete original game** — same maps, tiles, sprites, champions, realms,
+abilities, bosses, Forge, Ascend, audio and UI as
 [`kamilch1k/incremental-survivors`](https://github.com/kamilch1k/incremental-survivors)
-— rendered with a **true top-down 3D perspective camera**. No gameplay, balance,
-asset or logic file was touched; only the paint path changed.
+— rendered in **true isometric 2:1**. No gameplay, balance, asset or logic was
+touched; only the paint path changed.
 
-## What "3D" means here
+## What "isometric" means here
 
-A real pinhole camera sits behind + above the hero, looking down-forward:
-
-- **Perspective floor** — the realm plane (baked once per run from the original
-  `drawRooms()` output, flat decor included) is reprojected every frame in
-  scanline strips, so tiles shrink toward a **horizon with sky + realm vista**
-  (crypt arches, green hills, heaven temple, inferno spires) above it.
-- **Depth attenuation** — near enemies tower, far ones shrink; flyers (birds,
-  wisps, wraiths, clouds) float at real heights above the ground.
+- **Diamond tilemap, full screen** — the realm floor (baked once per run from the
+  original `drawRooms()` output, flat decor included) is drawn in a single
+  isometric transform, so every pixel is world: no sky, no void, no gaps.
 - **Standing billboards** — hero, enemies, bosses, allies, beacons and props are
-  camera-facing vertical sheets with feet planted and shadows.
-- **3D wall boxes** — every wall segment is a raised box with front face + top
-  face + highlight lip, correctly occluded back-to-front with everything else.
-- **Ground decals in perspective** — auras, novas, pools, mines, boss telegraphs
-  project as floor ellipses; bolts, beams, damage numbers and particles all live
-  in the same 3D space.
+  vertical sheets with feet planted and shadows, at exact original proportions.
+- **Iso wall boxes** — every wall segment is a raised box (two shaded faces +
+  top face + highlight lip), depth-sorted back-to-front by ground depth with
+  everything else, so you walk behind trees and in front of walls.
+- **Iso ground decals** — auras, novas, pools, mines, boss telegraphs project as
+  floor ellipses; bolts, beams, damage numbers and particles all live in the same
+  isometric space; flyers float at real heights.
 - Minimap, HUD, boss bar, menus and `?wallpaper=1` background mode unchanged.
 
 ## Play
@@ -53,13 +49,13 @@ wheel zooms the camera (closer/lower when zoomed in), P/Esc pauses.
 
 `bakeFloor3D()` (called from `startRun()` / `applyRealFloors()`, renders the realm
 into `floorCv` at 0.5× via a temporary `ctx` swap + `FULL_FLOOR` viewport +
-`COLLECT_WALLS` box capture in `drawWallSeg`), `camSetup()` / `proj()` pinhole
-model, `bbDraw()` billboards, `gEll()` / `ring3()` / `burst3()` / `glow3()` /
-`fill3()` / `quadImg()` screen-space ground effects, `wallBox()`, per-type
-painters (`enemy3`, `hero3`, `beacon3`, `prop3`, `flyby3`, `ally3`, `decal3`,
-`air3`) dispatched depth-sorted far-to-near in `render()`.
-Verified headless (real-time): 40 s run → wave 4, 83 kills, level 6, zero
-console errors; screenshots confirm perspective floor, horizon, wall boxes.
+`COLLECT_WALLS` box capture in `drawWallSeg`), `isoSetup()` / `iproj()` 2:1
+projection, `isoBb()` billboards, `isoEll()` / `ring3()` / `burst3()` /
+`glow3()` / `fill3()` / `isoQuad()` screen-space effects, `isoBox()`, per-type
+painters (`isoEnemy`, `isoHero`, `isoBeacon`, `isoProp`, `isoFlyby`, `isoAlly`,
+`isoDecal`, `isoAir`) dispatched depth-sorted back-to-front in `render()`.
+Verified headless (real-time): 40 s run → wave 4, 86 kills, level 6, zero
+console errors; screenshots confirm diamond floor, wall boxes, sorting.
 
 ## Credits
 
